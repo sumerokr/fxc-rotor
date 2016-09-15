@@ -97,13 +97,10 @@ function addPagination() {
 
 function showSlide(n) {
     var rotor = document.querySelector(".fxc-rotor");
-    var count = rotor.querySelectorAll(".fxc-rotor-slide").length;
+    var count = rotor.querySelectorAll(".fxc-rotor-slide").length - 1;
 
-    if (n < 0) {
-        n = count - 1;
-    } else if (n > count - 1) {
-        n = 0;
-    }
+    if (n < 0) n = count;
+    if (n > count) n = 0;
 
     rotor.querySelector(".fxc-rotor-slide.is-active").classList.remove("is-active");
     rotor.querySelector(".fxc-rotor-pagination-item.is-active").classList.remove("is-active");
@@ -120,7 +117,7 @@ function slidePlay() {
     timeout = setTimeout(function(){
         slideNext();
         slidePlay();
-    }, delay ? delay : 2000);
+    }, delay ? delay : 10000);
 }
 
 function slideStop() {
