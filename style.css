@@ -1,0 +1,28 @@
+.fxc-rotor-list {
+    padding: 0;
+    margin: 0;
+}
+.fxc-rotor-slide {
+    display: block;
+    width: 100%;
+}
+.fxc-rotor-slide > a {
+    display: block;
+}
+.fxc-rotor-slide {display: none;}
+.fxc-rotor-slide:first-child {display: block;}
+
+#weclome-bonus {
+    background: url(https://www.fxclub.cn/sites/fxcn/files/images/front-page/welcome_960x310.jpg) no-repeat center;
+    background-size: cover;
+}
+
+#delisious-bonus {
+    background: url(https://www.fxclub.cn/sites/fxcn/files/images/front-page/bonuses-lp.jpg) no-repeat center;
+    background-size: cover;
+}
+
+#trade-mt4 {
+    background: url(https://www.fxclub.cn/sites/fxcn/files/images/front-page/main_desktop_mt.jpg) no-repeat center;
+    background-size: cover;
+}
