@@ -1,139 +1,172 @@
-// (function (global) {
-"use strict";
+(function(global) {
+    "use strict";
 
-var current = 0,
-    timeout;
-
-init();
-
-function init() {
-    addNavigation();
-    addPagination();
-    prepare();
-    slidePlay();
-    // bindHandlers();
-}
-
-function prepare() {
     var rotor = document.querySelector(".fxc-rotor");
-    rotor.querySelector(".fxc-rotor-slide").classList.add("is-active");
-    rotor.querySelector(".fxc-rotor-pagination-item").classList.add("is-active");
-}
+    var slideList = rotor.querySelectorAll(".fxc-rotor-list");
+    var slideItems = rotor.querySelectorAll(".fxc-rotor-slide");
+    var navigationList;
+    var navigationItems;
+    var navigationButtons;
+    var paginationList;
+    var paginationItems;
+    var paginationButtons;
 
-function addNavigation() {
-    var rotor = document.querySelector(".fxc-rotor");
-    var navigation = document.createElement("div");
-    var navigationList = document.createElement("ul");
-    var navigationItemTemplate = document.createElement("li");
-    var navigationButtonTemplate = document.createElement("button");
-    var navigationItemPrev;
-    var navigationItemNext;
-    var navigationButtonPrev;
-    var navigationButtonNext;
+    var current = 0;
+    var timeout;
 
-    navigationItemTemplate.classList.add("fxc-rotor-navigation-item");
-    navigationButtonTemplate.classList.add("fxc-rotor-navigation-button");
-    navigationButtonTemplate.setAttribute("type", "button");
+    init();
 
-    navigationItemPrev = navigationItemTemplate.cloneNode(false);
-    navigationItemNext = navigationItemTemplate.cloneNode(false);
-    navigationButtonPrev = navigationButtonTemplate.cloneNode(false);
-    navigationButtonNext = navigationButtonTemplate.cloneNode(false);
-
-    navigation.className = "fxc-rotor-navigation";
-    navigationList.className = "fxc-rotor-navigation-list";
-
-    navigationItemPrev.classList.add("fxc-rotor-navigation-item-prev");
-    navigationItemNext.classList.add("fxc-rotor-navigation-item-next");
-    navigationButtonPrev.classList.add("fxc-rotor-navigation-button-prev");
-    navigationButtonNext.classList.add("fxc-rotor-navigation-button-next");
-    navigationButtonPrev.innerHTML = "Prev";
-    navigationButtonNext.innerHTML = "Next";
-
-    navigationButtonPrev.onclick = slidePrev;
-    navigationButtonNext.onclick = slideNext;
-
-    navigationItemPrev.appendChild(navigationButtonPrev);
-    navigationItemNext.appendChild(navigationButtonNext);
-    navigationList.appendChild(navigationItemPrev);
-    navigationList.appendChild(navigationItemNext);
-
-    navigation.appendChild(navigationList);
-    rotor.appendChild(navigation);
-}
-
-function addPagination() {
-    var rotor = document.querySelector(".fxc-rotor");
-    var slidesLength = rotor.querySelectorAll(".fxc-rotor-slide").length;
-    var pagination = document.createElement("div");
-    var paginationList = document.createElement("ul");
-    var paginationItemTemplate = document.createElement("li");
-    var paginationButtonTemplate = document.createElement("button");
-    var paginationItem;
-    var paginationButton;
-
-    pagination.classList.add("fxc-rotor-pagination");
-    paginationList.classList.add("fxc-rotor-pagination-list");
-    paginationItemTemplate.classList.add("fxc-rotor-pagination-item");
-    paginationButtonTemplate.classList.add("fxc-rotor-pagination-button");
-    paginationButtonTemplate.setAttribute("type", "button");
-
-    for (var i = 0; i < slidesLength; i++) {
-        paginationItem = paginationItemTemplate.cloneNode(false);
-        paginationButton = paginationButtonTemplate.cloneNode(false);
-        paginationButton.onclick = (function(i) {
-            return function(e) {
-                showSlide(i);
-            }
-        })(i);
-        paginationButton.innerHTML = i + 1;
-        paginationItem.appendChild(paginationButton);
-        paginationList.appendChild(paginationItem);
+    function init() {
+        addNavigation();
+        addPagination();
+        bindHandlers();
+        slidePlay();
     }
 
-    pagination.appendChild(paginationList);
-    rotor.appendChild(pagination);
-}
+    function bindHandlers() {
+        rotor.querySelector(".fxc-rotor-navigation-button-prev").addEventListener("click", slidePrev);
+        rotor.querySelector(".fxc-rotor-navigation-button-next").addEventListener("click", slideNext);
+        paginationButtons.forEach(function(el, i) {
+            el.addEventListener("click", function() {
+                slideGoTo(i);
+            });
+        });
+    }
 
-function showSlide(n) {
-    var rotor = document.querySelector(".fxc-rotor");
-    var count = rotor.querySelectorAll(".fxc-rotor-slide").length - 1;
+    function addNavigation() {
+        var navigation = document.createElement("div");
+        var navigationList = document.createElement("ul");
+        var navigationItemTemplate = document.createElement("li");
+        var navigationButtonTemplate = document.createElement("button");
+        var navigationItemPrev;
+        var navigationItemNext;
+        var navigationButtonPrev;
+        var navigationButtonNext;
 
-    if (n < 0) n = count;
-    if (n > count) n = 0;
+        navigationItemTemplate.classList.add("fxc-rotor-navigation-item");
+        navigationButtonTemplate.classList.add("fxc-rotor-navigation-button");
+        navigationButtonTemplate.setAttribute("type", "button");
 
-    rotor.querySelector(".fxc-rotor-slide.is-active").classList.remove("is-active");
-    rotor.querySelector(".fxc-rotor-pagination-item.is-active").classList.remove("is-active");
+        navigationItemPrev = navigationItemTemplate.cloneNode(false);
+        navigationItemNext = navigationItemTemplate.cloneNode(false);
+        navigationButtonPrev = navigationButtonTemplate.cloneNode(false);
+        navigationButtonNext = navigationButtonTemplate.cloneNode(false);
 
-    rotor.querySelectorAll(".fxc-rotor-slide")[n].classList.add("is-active");
-    rotor.querySelectorAll(".fxc-rotor-pagination-item")[n].classList.add("is-active");
-    current = n;
-}
+        navigation.className = "fxc-rotor-navigation";
+        navigationList.className = "fxc-rotor-navigation-list";
 
-function slidePlay() {
-    var rotor = document.querySelector(".fxc-rotor");
-    var delay = rotor.querySelectorAll(".fxc-rotor-slide")[current].dataset.delay;
+        navigationItemPrev.classList.add("fxc-rotor-navigation-item-prev");
+        navigationItemNext.classList.add("fxc-rotor-navigation-item-next");
+        navigationButtonPrev.classList.add("fxc-rotor-navigation-button-prev");
+        navigationButtonNext.classList.add("fxc-rotor-navigation-button-next");
+        navigationButtonPrev.innerHTML = "Prev";
+        navigationButtonNext.innerHTML = "Next";
 
-    timeout = setTimeout(function(){
-        slideNext();
-        slidePlay();
-    }, delay ? delay : 10000);
-}
+        navigationItemPrev.appendChild(navigationButtonPrev);
+        navigationItemNext.appendChild(navigationButtonNext);
+        navigationList.appendChild(navigationItemPrev);
+        navigationList.appendChild(navigationItemNext);
 
-function slideStop() {
-    clearTimeout(timeout);
-}
+        navigation.appendChild(navigationList);
+        rotor.appendChild(navigation);
+        navigationList = rotor.querySelector(".fxc-rotor-navigation-list");
+        navigationItems = navigationList.querySelectorAll(".fxc-rotor-navigation-item");
+        navigationButtons = navigationList.querySelectorAll(".fxc-rotor-navigation-button");
+    }
 
-function slidePrev() {
-    slideGoTo(current - 1);
-}
+    function addPagination() {
+        var slidesLength = rotor.querySelectorAll(".fxc-rotor-slide").length;
+        var pagination = document.createElement("div");
+        var paginationList = document.createElement("ul");
+        var paginationItemTemplate = document.createElement("li");
+        var paginationButtonTemplate = document.createElement("button");
+        var paginationItem;
+        var paginationButton;
 
-function slideNext() {
-    showSlide(current + 1);
-}
+        pagination.classList.add("fxc-rotor-pagination");
+        paginationList.classList.add("fxc-rotor-pagination-list");
+        paginationItemTemplate.classList.add("fxc-rotor-pagination-item");
+        paginationButtonTemplate.classList.add("fxc-rotor-pagination-button");
+        paginationButtonTemplate.setAttribute("type", "button");
 
-function slideGoTo(n) {
-    showSlide(n);
-    slideStop();
-}
-// })(this);
+        for (var i = 0; i < slidesLength; i++) {
+            paginationItem = paginationItemTemplate.cloneNode(false);
+            paginationButton = paginationButtonTemplate.cloneNode(false);
+            paginationButton.innerHTML = i + 1;
+            paginationItem.appendChild(paginationButton);
+            paginationList.appendChild(paginationItem);
+        }
+
+        pagination.appendChild(paginationList);
+        rotor.appendChild(pagination);
+        paginationList = rotor.querySelector(".fxc-rotor-pagination-list");
+        paginationItems = paginationList.querySelectorAll(".fxc-rotor-pagination-item");
+        paginationItems[0].classList.add("is-active");
+        paginationButtons = paginationList.querySelectorAll(".fxc-rotor-pagination-button");
+    }
+
+    function showSlide(n) {
+        var lastIndex;
+
+        if (n === current) return;
+
+        lastIndex = slideItems.length - 1;
+
+        if (n < 0) n = lastIndex;
+        if (n > lastIndex) n = 0;
+
+        rotor.querySelector(".fxc-rotor-slide.is-active").classList.remove("is-active");
+        rotor.querySelector(".fxc-rotor-pagination-item.is-active").classList.remove("is-active");
+
+        slideItems[n].classList.add("is-active");
+        paginationItems[n].classList.add("is-active");
+        current = n;
+        if (n !== lastIndex) {
+            slideItems[n + 1].classList.add("is-loaded");
+        }
+    }
+
+    function slidePlay() {
+        var delay = slideItems[current].dataset.delay;
+
+        timeout = setTimeout(function() {
+            showSlide(current + 1);
+            slidePlay();
+        }, delay ? delay : 100000);
+    }
+
+    function slideStop() {
+        clearTimeout(timeout);
+    }
+
+    function slidePrev() {
+        slideGoTo(current - 1);
+    }
+
+    function slideNext() {
+        slideGoTo(current + 1);
+    }
+
+    function slideGoTo(n) {
+        showSlide(n);
+        slideStop();
+    }
+
+    rotor.rotor = {
+        prev: slidePrev,
+        next: slideNext
+    };
+})(this);
+
+var Anton = {
+    name: "Ant",
+    surn: "Steg"
+};
+
+Object.defineProperty(Anton, "fullname", {
+    get: function () {
+        return this.name + " " + this.surn;
+    }
+});
+
+console.log(Anton.fullname); // Ant Stega
