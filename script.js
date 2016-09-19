@@ -157,16 +157,3 @@
         next: slideNext
     };
 })(this);
-
-var Anton = {
-    name: "Ant",
-    surn: "Steg"
-};
-
-Object.defineProperty(Anton, "fullname", {
-    get: function () {
-        return this.name + " " + this.surn;
-    }
-});
-
-console.log(Anton.fullname); // Ant Stega
